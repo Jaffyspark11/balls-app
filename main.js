@@ -1,8 +1,12 @@
 // Modules to control application life and create native browser window
 const { app, BrowserWindow, Tray, nativeImage } = require('electron')
+const Store = require('electron-store')
 const path = require('node:path')
 
+
 let tray, window;
+
+app.dock.hide()
 
 
 function createWindow () {
@@ -20,7 +24,9 @@ function createWindow () {
     }
   })
 
-  window.on('closed', () => window = null)
+  window.on('closed', () => {
+    window = null
+  })
 
   // and load the index.html of the app.
   window.loadURL('http://localhost:3000')
@@ -29,10 +35,44 @@ function createWindow () {
   // mainWindow.webContents.openDevTools()
 }
 
+const createTray = () => {
+  const icon = path.join(__dirname, "./src/assets/balls.png")
+  const nImage = nativeImage.createFromPath(icon)
+  const smallerIcon = nImage.resize({'height': 20})
+  
+
+  tray = new Tray(smallerIcon)
+  tray.on('click', (event) => toggleWindow())
+}
+
+const toggleWindow = () => {
+  window.isVisible() ? window.hide() : showWindow()
+}
+
+const showWindow = () => {
+  const position = windowPosition();
+  window.setPosition(position.x, position.y)
+  window.show()
+}
+
+const windowPosition = () => {
+  const windowBounds = window.getBounds()
+  const trayBounds = tray.getBounds()
+
+  const x = Math.round(trayBounds.x + (trayBounds.width/2) - (windowBounds.width/2))
+  const y = Math.round(trayBounds.y + trayBounds.height)
+
+  return {x, y}
+
+}
+
+
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  createTray()
   createWindow()
 
   app.on('activate', function () {
@@ -51,3 +91,9 @@ app.on('window-all-closed', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+
+
+
+
+

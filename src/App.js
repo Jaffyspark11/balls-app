@@ -1,23 +1,42 @@
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
 import './App.css';
+import StartupScreen from './components/StartupScreen';
+import bigBalls from './assets/bigBalls.png';
 
 function App() {
+
+  const [startup, setStartup] = useState(true)
+  const [totalScratches, setTotalScratches] = useState(() => {
+    const storedCounter = localStorage.getItem('totalScratches');
+    return storedCounter ? parseInt(storedCounter, 10) : 0;
+  });
+
+  const scratch = () => {
+    setTotalScratches(totalScratches + 1)
+  }
+
+  useEffect(() =>{
+  localStorage.setItem("totalScratches", JSON.stringify(totalScratches))
+
+}
+  ,[totalScratches])
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='app'>
+      {startup && <StartupScreen setStartup={setStartup}/>}
+
+      {!startup && (
+        <>
+          <h1>Itch 'Em!!</h1>
+          <button className='big-balls' onClick={scratch}>
+            <img src= {bigBalls} alt='Balls' ></img>
+          </button>
+          <h2>Total Scratches: {totalScratches}</h2>
+
+        
+        </>
+      )}
+
     </div>
   );
 }
